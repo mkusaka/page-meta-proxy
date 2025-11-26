@@ -26,13 +26,10 @@ const metaRoute = createRoute({
   path: "/meta",
   request: {
     query: z.object({
-      url: z
-        .string()
-        .url()
-        .openapi({
-          description: "メタ情報を取得したいURL",
-          example: "https://example.com",
-        }),
+      url: z.string().url().openapi({
+        description: "メタ情報を取得したいURL",
+        example: "https://example.com",
+      }),
     }),
   },
   responses: {
@@ -91,7 +88,7 @@ app.openapi(metaRoute, async (c) => {
       200,
       {
         "Cache-Control": "public, max-age=300",
-      }
+      },
     );
   }
 

@@ -17,18 +17,14 @@ describe("GET /meta", () => {
   });
 
   it("returns error for unsupported protocol", async () => {
-    const res = await SELF.fetch(
-      "http://localhost/meta?url=ftp://example.com"
-    );
+    const res = await SELF.fetch("http://localhost/meta?url=ftp://example.com");
     expect(res.status).toBe(400);
     const json = await res.json();
     expect(json).toEqual({ error: "unsupported protocol" });
   });
 
   it("extracts meta from a real website", async () => {
-    const res = await SELF.fetch(
-      "http://localhost/meta?url=https://example.com"
-    );
+    const res = await SELF.fetch("http://localhost/meta?url=https://example.com");
     expect(res.status).toBe(200);
     const json = (await res.json()) as {
       requestedUrl: string;
@@ -43,9 +39,7 @@ describe("GET /meta", () => {
   });
 
   it("extracts OG tags from a website with rich meta", async () => {
-    const res = await SELF.fetch(
-      "http://localhost/meta?url=https://github.com"
-    );
+    const res = await SELF.fetch("http://localhost/meta?url=https://github.com");
     expect(res.status).toBe(200);
     const json = (await res.json()) as {
       requestedUrl: string;

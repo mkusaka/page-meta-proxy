@@ -21,13 +21,19 @@ export const MetaExtractionResultSchema = z.object({
   finalUrl: z.string().openapi({ description: "実際に取得に使ったURL（リダイレクト後など）" }),
   status: z.number().openapi({ description: "HTTPステータスコード" }),
   contentType: z.string().optional().openapi({ description: "Content-Type" }),
-  lang: z.string().optional().openapi({ description: "<html lang=\"...\">の値" }),
+  lang: z.string().optional().openapi({ description: '<html lang="...">の値' }),
   title: z.string().optional().openapi({ description: "<head><title>の内容" }),
-  canonical: z.string().optional().openapi({ description: "<link rel=\"canonical\">のhref" }),
-  og: z.record(z.string(), z.string()).openapi({ description: "og:* プロパティ（og:title → { title: \"...\" }）" }),
+  canonical: z.string().optional().openapi({ description: '<link rel="canonical">のhref' }),
+  og: z
+    .record(z.string(), z.string())
+    .openapi({ description: 'og:* プロパティ（og:title → { title: "..." }）' }),
   twitter: z.record(z.string(), z.string()).openapi({ description: "twitter:* プロパティ" }),
-  metaByName: z.record(z.string(), z.string()).openapi({ description: "meta[name=*] のマップ（小文字化）" }),
-  metaByProperty: z.record(z.string(), z.string()).openapi({ description: "meta[property=*] のマップ（小文字化）" }),
+  metaByName: z
+    .record(z.string(), z.string())
+    .openapi({ description: "meta[name=*] のマップ（小文字化）" }),
+  metaByProperty: z
+    .record(z.string(), z.string())
+    .openapi({ description: "meta[property=*] のマップ（小文字化）" }),
   metaTags: z.array(MetaTagSchema).openapi({ description: "生メタタグ全部" }),
   linkTags: z.array(LinkTagSchema).openapi({ description: "<link>タグ全部" }),
 });
