@@ -1,4 +1,4 @@
-import type { LinkTag, MetaExtractionResult, MetaTag } from "./meta-schema";
+import type { Alternate, Icon, LinkTag, MetaExtractionResult, MetaTag } from "./meta-schema";
 
 export class MetaCollector {
   private readonly baseUrl: string;
@@ -6,9 +6,12 @@ export class MetaCollector {
   private lang?: string;
   private titleBuffer: string[] = [];
   private canonical?: string;
+  private charset?: string;
 
   private readonly metaTags: MetaTag[] = [];
   private readonly linkTags: LinkTag[] = [];
+  private readonly icons: Icon[] = [];
+  private readonly alternates: Alternate[] = [];
 
   private readonly og: Record<string, string> = {};
   private readonly twitter: Record<string, string> = {};
@@ -44,6 +47,11 @@ export class MetaCollector {
   addMeta(tag: MetaTag) {
     this.metaTags.push(tag);
 
+    // Handle charset
+    if (tag.charset && !this.charset) {
+      this.charset = tag.charset;
+    }
+
     const content = tag.content ?? "";
 
     if (tag.name) {
@@ -71,13 +79,42 @@ export class MetaCollector {
     }
   }
 
-  addLink(tag: LinkTag) {
+  addLink(tag: LinkTag, title?: string | null) {
     this.linkTags.push(tag);
 
     const relSet = new Set(tag.rels.map((r) => r.toLowerCase()));
 
+    // Handle canonical
     if (relSet.has("canonical") && tag.href) {
       this.setCanonical(tag.href);
+    }
+
+    // Handle icons (icon, apple-touch-icon, etc.)
+    const iconRels = ["icon", "apple-touch-icon", "apple-touch-icon-precomposed", "shortcut"];
+    const matchedIconRel = tag.rels.find((r) => iconRels.includes(r.toLowerCase()));
+    if (matchedIconRel && tag.href) {
+      const resolved = this.resolveUrl(tag.href);
+      if (resolved) {
+        this.icons.push({
+          href: resolved,
+          rel: matchedIconRel.toLowerCase(),
+          type: tag.type,
+          sizes: tag.sizes,
+        });
+      }
+    }
+
+    // Handle alternates (hreflang, feeds)
+    if (relSet.has("alternate") && tag.href) {
+      const resolved = this.resolveUrl(tag.href);
+      if (resolved) {
+        this.alternates.push({
+          href: resolved,
+          hreflang: tag.hreflang,
+          type: tag.type,
+          title: title ?? undefined,
+        });
+      }
     }
   }
 
@@ -89,21 +126,47 @@ export class MetaCollector {
   }): MetaExtractionResult {
     const title = this.titleBuffer.join("").trim();
 
+    // Extract normalized fields from collected meta
+    const description = this.metaByName["description"] || this.og["description"] || undefined;
+    const themeColor = this.metaByName["theme-color"] || undefined;
+    const author = this.metaByName["author"] || undefined;
+    const keywords = this.metaByName["keywords"] || undefined;
+    const robots = this.metaByName["robots"] || undefined;
+    const generator = this.metaByName["generator"] || undefined;
+
+    // Primary favicon (first icon with rel="icon")
+    const favicon = this.icons.find((i) => i.rel === "icon")?.href;
+
     return {
       requestedUrl: input.requestedUrl,
       finalUrl: input.finalUrl ?? input.requestedUrl,
       status: input.status,
       contentType: input.contentType,
 
+      // Normalized fields
       lang: this.lang,
       title: title || undefined,
+      description,
       canonical: this.canonical,
+      charset: this.charset,
+      themeColor,
+      author,
+      keywords,
+      robots,
+      generator,
+      favicon,
 
+      // Structured normalized fields
+      icons: this.icons,
+      alternates: this.alternates,
+
+      // OG/Twitter
       og: this.og,
       twitter: this.twitter,
+
+      // Raw collections
       metaByName: this.metaByName,
       metaByProperty: this.metaByProperty,
-
       metaTags: this.metaTags,
       linkTags: this.linkTags,
     };
@@ -173,6 +236,7 @@ export class LinkHandler implements HTMLRewriterElementContentHandlers {
       sizes: e.getAttribute("sizes") ?? undefined,
     };
 
-    this.collector.addLink(tag);
+    const title = e.getAttribute("title");
+    this.collector.addLink(tag, title);
   }
 }

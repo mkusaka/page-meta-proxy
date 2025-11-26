@@ -34,7 +34,7 @@ describe("GET /meta", () => {
     expect(json).toEqual({ error: "recursive request detected" });
   });
 
-  it("extracts meta from a real website", async () => {
+  it("extracts basic meta from example.com", async () => {
     const res = await SELF.fetch("http://localhost/meta?url=https://example.com");
     expect(res.status).toBe(200);
     const json = (await res.json()) as {
@@ -42,26 +42,22 @@ describe("GET /meta", () => {
       finalUrl: string;
       status: number;
       title?: string;
+      og: Record<string, string>;
+      twitter: Record<string, string>;
+      metaByName: Record<string, string>;
+      icons: Array<{ href: string; rel: string }>;
+      alternates: Array<{ href: string }>;
     };
 
     expect(json.requestedUrl).toBe("https://example.com/");
     expect(json.status).toBe(200);
     expect(json.title).toBe("Example Domain");
-  });
-
-  it("extracts OG tags from a website with rich meta", async () => {
-    const res = await SELF.fetch("http://localhost/meta?url=https://github.com");
-    expect(res.status).toBe(200);
-    const json = (await res.json()) as {
-      requestedUrl: string;
-      og: Record<string, string>;
-      twitter: Record<string, string>;
-      metaByName: Record<string, string>;
-    };
-
+    // These should be defined (even if empty)
     expect(json.og).toBeDefined();
     expect(json.twitter).toBeDefined();
     expect(json.metaByName).toBeDefined();
+    expect(json.icons).toBeDefined();
+    expect(json.alternates).toBeDefined();
   });
 });
 
