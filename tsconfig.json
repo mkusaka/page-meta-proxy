@@ -8,8 +8,8 @@
     "lib": [
       "ESNext"
     ],
-    "types": ["vite/client"],
+    "types": ["vite/client", "@cloudflare/workers-types/2023-07-01"],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx"
-  },
+  }
 }
