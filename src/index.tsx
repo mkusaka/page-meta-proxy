@@ -1,7 +1,7 @@
-import { Hono } from 'hono'
+import { OpenAPIHono } from '@hono/zod-openapi'
 import { renderer } from './renderer'
 
-const app = new Hono()
+const app = new OpenAPIHono<{ Bindings: CloudflareBindings }>()
 
 app.use(renderer)
 
