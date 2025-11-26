@@ -27,7 +27,7 @@ const metaRoute = createRoute({
   request: {
     query: z.object({
       url: z.string().url().openapi({
-        description: "メタ情報を取得したいURL",
+        description: "URL to extract meta information from",
         example: "https://example.com",
       }),
     }),
@@ -39,7 +39,7 @@ const metaRoute = createRoute({
           schema: z.union([MetaExtractionResultSchema, NonHtmlResponseSchema]),
         },
       },
-      description: "メタ情報の抽出結果",
+      description: "Meta extraction result",
     },
     400: {
       content: {
@@ -47,7 +47,7 @@ const metaRoute = createRoute({
           schema: ErrorResponseSchema,
         },
       },
-      description: "バリデーションエラー",
+      description: "Validation error",
     },
   },
 });
@@ -121,7 +121,7 @@ app.doc("/doc", {
   info: {
     title: "Page Meta Proxy API",
     version: "1.0.0",
-    description: "URLからメタ情報を抽出するAPI",
+    description: "API for extracting meta information from URLs",
   },
 });
 

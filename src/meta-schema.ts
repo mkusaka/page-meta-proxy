@@ -17,25 +17,25 @@ export const LinkTagSchema = z.object({
 });
 
 export const MetaExtractionResultSchema = z.object({
-  requestedUrl: z.string().openapi({ description: "クライアントから指定されたURL" }),
-  finalUrl: z.string().openapi({ description: "実際に取得に使ったURL（リダイレクト後など）" }),
-  status: z.number().openapi({ description: "HTTPステータスコード" }),
+  requestedUrl: z.string().openapi({ description: "URL specified by the client" }),
+  finalUrl: z.string().openapi({ description: "Actual URL used for fetching (after redirects)" }),
+  status: z.number().openapi({ description: "HTTP status code" }),
   contentType: z.string().optional().openapi({ description: "Content-Type" }),
-  lang: z.string().optional().openapi({ description: '<html lang="...">の値' }),
-  title: z.string().optional().openapi({ description: "<head><title>の内容" }),
-  canonical: z.string().optional().openapi({ description: '<link rel="canonical">のhref' }),
+  lang: z.string().optional().openapi({ description: 'Value of <html lang="...">' }),
+  title: z.string().optional().openapi({ description: "Content of <head><title>" }),
+  canonical: z.string().optional().openapi({ description: 'href of <link rel="canonical">' }),
   og: z
     .record(z.string(), z.string())
-    .openapi({ description: 'og:* プロパティ（og:title → { title: "..." }）' }),
-  twitter: z.record(z.string(), z.string()).openapi({ description: "twitter:* プロパティ" }),
+    .openapi({ description: 'og:* properties (og:title → { title: "..." })' }),
+  twitter: z.record(z.string(), z.string()).openapi({ description: "twitter:* properties" }),
   metaByName: z
     .record(z.string(), z.string())
-    .openapi({ description: "meta[name=*] のマップ（小文字化）" }),
+    .openapi({ description: "Map of meta[name=*] (lowercased)" }),
   metaByProperty: z
     .record(z.string(), z.string())
-    .openapi({ description: "meta[property=*] のマップ（小文字化）" }),
-  metaTags: z.array(MetaTagSchema).openapi({ description: "生メタタグ全部" }),
-  linkTags: z.array(LinkTagSchema).openapi({ description: "<link>タグ全部" }),
+    .openapi({ description: "Map of meta[property=*] (lowercased)" }),
+  metaTags: z.array(MetaTagSchema).openapi({ description: "All raw meta tags" }),
+  linkTags: z.array(LinkTagSchema).openapi({ description: "All <link> tags" }),
 });
 
 export const NonHtmlResponseSchema = z.object({
