@@ -23,6 +23,17 @@ describe("GET /meta", () => {
     expect(json).toEqual({ error: "unsupported protocol" });
   });
 
+  it("returns error for recursive request", async () => {
+    const res = await SELF.fetch("http://localhost/meta?url=https://example.com", {
+      headers: {
+        "X-Meta-Proxy-Request": "1",
+      },
+    });
+    expect(res.status).toBe(400);
+    const json = await res.json();
+    expect(json).toEqual({ error: "recursive request detected" });
+  });
+
   it("extracts meta from a real website", async () => {
     const res = await SELF.fetch("http://localhost/meta?url=https://example.com");
     expect(res.status).toBe(200);

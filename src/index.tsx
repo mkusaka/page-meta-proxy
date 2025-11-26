@@ -15,6 +15,8 @@ import {
 
 const app = new OpenAPIHono<{ Bindings: CloudflareBindings }>();
 
+const LOOP_DETECTION_HEADER = "X-Meta-Proxy-Request";
+
 app.use(renderer);
 
 app.get("/", (c) => {
@@ -53,6 +55,11 @@ const metaRoute = createRoute({
 });
 
 app.openapi(metaRoute, async (c) => {
+  // Detect recursive requests to prevent infinite loops
+  if (c.req.header(LOOP_DETECTION_HEADER)) {
+    return c.json({ error: "recursive request detected" }, 400);
+  }
+
   const { url: urlParam } = c.req.valid("query");
 
   let target: URL;
@@ -70,6 +77,7 @@ app.openapi(metaRoute, async (c) => {
     redirect: "follow",
     headers: {
       "User-Agent": "MetaProxyWorker/1.0",
+      [LOOP_DETECTION_HEADER]: "1",
     },
   });
 
