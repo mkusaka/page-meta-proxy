@@ -1,0 +1,32 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  extends: [
+    "config:best-practices",
+    "helpers:pinGitHubActionDigests",
+  ],
+  minimumReleaseAge: "7 days",
+  customManagers: [
+    {
+      customType: "regex",
+      description: "Update versions with renovate comments in GitHub workflow files",
+      managerFilePatterns: [
+        "/^\\.github/workflows/.+\\.ya?ml$/",
+        "/^\\.github/actions/.+/action\\.ya?ml$/",
+      ],
+      matchStrings: [
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s.*?_VERSION\\s*\\??=\\s*(?<currentValue>.*?)\\s",
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s.*?(VERSION|version):\\s*(?<currentValue>.*?)\\s",
+      ],
+      versioningTemplate: "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
+    },
+  ],
+  packageRules: [
+    {
+      description: "Group non-major GitHub Actions updates after a 7 day minimum release age",
+      groupName: "github-actions (non-major)",
+      matchManagers: ["github-actions"],
+      matchUpdateTypes: ["minor", "patch", "digest", "pinDigest"],
+      minimumReleaseAge: "7 days",
+    },
+  ],
+}
